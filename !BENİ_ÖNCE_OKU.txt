@@ -1,59 +1,21 @@
 PIXELBATCH - HEIC'den JPEG'e Dönüştürücü
 ==========================================
 
-BAŞLA! SADECE BUNU TIK:
-======================
+BU KADAR!
 
-👉 PixelBatch.bat (Windows)
-👉 PixelBatch.command (macOS)
+PixelBatch.bat'ı çift tıkla.
 
-HEPSI OLACAK:
-- Node.js otomatik kurulacak (yoksa)
-- Bağımlılıklar otomatik yüklenecek
-- Tarayıcı otomatik açılacak
-- HEIC dosyalarını dönüştürebileceksin
+Hepsi kendiliğinden olacak:
+- Node.js kuracak (ilk kez)
+- Bağımlılıkları yükleyecek
+- Tarayıcı açacak
+- Masaüstü kısayolu oluşturacak
 
-NASIL?
-======
+FOTOĞRAF DÖNÜŞTÜRME:
 
-1. PixelBatch.bat'ı çift tıkla (Windows)
-   veya
-   PixelBatch.command'ı çift tıkla (macOS)
+1. PixelBatch.bat'ı tıkla
+2. Tarayıcıda http://localhost:3000 açılır
+3. HEIC dosyalarını sürükle-bırak
+4. ZIP indir
 
-2. Eğer yönetici izni isterise, izin ver
-
-3. İlk açılışta Node.js kuracak (1-2 dakika)
-   Bilgisayar yeniden başlayabilir - normal
-
-4. Ardından tarayıcı açılacak:
-   http://localhost:3000
-
-5. HEIC fotoğraflarını sürükle-bırak yap
-
-6. ZIP'i indir, aç ve JPEG'leri kullan
-
-HAZIR!
-======
-
-Başka bir şey yok.
-Sorun yok.
-Her açılışta PixelBatch.bat'ı tıkla.
-
-İLK AÇILIŞA SORUNU VAR MI?
-==========================
-
-Tarayıcı açılmıyorsa:
-→ http://localhost:3000 adresine git
-
-Node.js kurulmuyorsa:
-→ İnternet bağlantıyı kontrol et
-→ Bilgisayarı yeniden başlat
-→ PixelBatch.bat'ı tekrar tıkla
-
-BAŞKA SORUN?
-============
-
-Lütfen bak:
-- KULLANICI_REHBERI.md (Detaylı rehber)
-- KURULUM_REHBERI.md (Teknik bilgi)
-- README.md (Developer referansi)
+BITTI! 📸→🖼️

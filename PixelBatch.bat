@@ -1,22 +1,19 @@
 ﻿@echo off
-REM PixelBatch - HEIC'den JPEG'e Dönüştürücü - NO RESTART!
+REM PixelBatch - HEIC'den JPEG'e Dönüştürücü
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM Yönetici kontrolü
+REM Self-elevating (admin otomatik)
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-    cls
-    color 0C
-    echo.
-    echo ⚠️  UYARI: Yönetici İzni Gerekli
-    echo.
-    echo Lütfen bunu yap:
-    echo   1. PixelBatch.bat'a SAĞ TIKLA
-    echo   2. "Yönetici olarak çalıştır" seçeneğini seç
-    echo.
-    pause
-    exit /b 1
+    set "VBS_ELEVATE=%temp%\elevate_%random%.vbs"
+    (
+        echo Set objShell = CreateObject("Shell.Application"^)
+        echo objShell.ShellExecute "cmd.exe", "/c cd /d ""%~dp0"" && ""%~0""", "", "runas", 1
+    ) > "%VBS_ELEVATE%"
+    cscript.exe "%VBS_ELEVATE%" //nologo >nul 2>&1
+    del "%VBS_ELEVATE%" /Q >nul 2>&1
+    exit /b 0
 )
 
 REM Node.js kontrol et
@@ -85,6 +82,28 @@ if not exist node_modules (
     )
     echo ✓ Kurulum tamam!
     echo.
+    
+    REM İlk kurulumda masaüstü kısayolunu otomatik oluştur
+    echo Masaüstü kısayolu oluşturuluyor...
+    set "VBS_SHORTCUT=%temp%\mkshortcut_%random%.vbs"
+    (
+        echo Set oWS = WScript.CreateObject("WScript.Shell"^)
+        echo For Each fold In oWS.SpecialFolders
+        echo     If fold = 16 Then
+        echo         sLinkFile = oWS.SpecialFolders(16^) ^& "\PixelBatch.lnk"
+        echo         Set oLink = oWS.CreateShortcut(sLinkFile^)
+        echo         oLink.TargetPath = "%~dp0PixelBatch.bat"
+        echo         oLink.WorkingDirectory = "%~dp0"
+        echo         oLink.Description = "PixelBatch - HEIC'den JPEG'e Dönüştürücü"
+        echo         oLink.IconLocation = "%~dp0PixelBatch.bat"
+        echo         oLink.Save
+        echo     End If
+        echo Next
+    ) > "%VBS_SHORTCUT%"
+    cscript.exe "%VBS_SHORTCUT%" //nologo >nul 2>&1
+    del "%VBS_SHORTCUT%" /Q >nul 2>&1
+    echo ✓ Masaüstü kısayolu oluşturuldu!
+    echo.
 )
 
 echo Sunucu başlatılıyor...
@@ -92,12 +111,15 @@ echo Tarayıcı açılacak...
 echo.
 
 REM Server başlat ve tarayıcıyı aç
-start "" node server.js
-timeout /t 2 >nul
-powershell -NoProfile -WindowStyle Hidden -Command "Start-Process 'http://localhost:3000'" >nul 2>&1
-
-echo ✓ Tarayıcı açılıyor: http://localhost:3000
+echo Sunucu başlıyor %TIME%...
+node server.js %*
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo ✗ HATA: Sunucu başlanamadı
+    echo Kontrol et: port 3000 kullanımda mı?
+    echo.
+)
 echo.
-echo Durdur: Ctrl+C
+echo ✓ Tamamlandı
 echo.
 pause
