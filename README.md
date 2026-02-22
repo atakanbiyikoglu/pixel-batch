@@ -13,15 +13,13 @@ Batch HEIC/HEIF to JPEG converter. A lightweight Electron desktop app with FFmpe
 
 ## Download
 
+Download the latest version from [**GitHub Releases**](https://github.com/atakanbiyikoglu/pixel-batch/releases/latest).
+
 | Platform | File | Description |
 | -------- | ---- | ----------- |
-| Windows  | `PixelBatch Setup.exe` | Installer with desktop shortcut |
-| Windows  | `PixelBatch.exe` | Portable — no installation needed |
-| macOS    | `PixelBatch.dmg` | Drag to Applications |
-
-Pre-built binaries are available in the project root directory and under `dist/`.
-
-> macOS builds require building on a Mac. Run `npm run build:mac` on macOS.
+| Windows  | `PixelBatch Setup x.x.x.exe` | Installer with desktop shortcut |
+| Windows  | `PixelBatch x.x.x.exe` | Portable — no installation needed |
+| macOS    | `PixelBatch-x.x.x.dmg` | Drag to Applications |
 
 ## Usage
 
@@ -50,12 +48,12 @@ Output goes to `dist/`.
 
 ## Technical Details
 
-| Parameter    | Value |
-| ------------ | ----- |
-| Input        | HEIC, HEIF |
-| Output       | JPEG (.jpg) |
-| Quality      | q:v 2 (highest) |
-| Pixel Format | yuvj444p (4:4:4 chroma subsampling) |
+| Parameter    | Value                                                    |
+| ------------ | -------------------------------------------------------- |
+| Input        | HEIC, HEIF                                               |
+| Output       | JPEG (.jpg)                                              |
+| Quality      | q:v 2 (highest)                                          |
+| Pixel Format | yuvj444p (4:4:4 chroma subsampling)                      |
 | Command      | `ffmpeg -i input -q:v 2 -pix_fmt yuvj444p -y output.jpg` |
 
 ### Architecture

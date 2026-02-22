@@ -1,0 +1,105 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run build:win
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            dist/*.exe
+            !dist/__uninstaller*
+          retention-days: 1
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run build:mac
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-builds
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          retention-days: 1
+
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-builds
+          path: artifacts/windows
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-builds
+          path: artifacts/macos
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: PixelBatch ${{ github.ref_name }}
+          body: |
+            ## PixelBatch ${{ github.ref_name }}
+
+            ### Downloads
+
+            | Platform | File | Description |
+            | -------- | ---- | ----------- |
+            | Windows | **PixelBatch Setup** | Installer — creates desktop shortcut |
+            | Windows | **PixelBatch Portable** | No installation needed |
+            | macOS | **PixelBatch DMG** | Drag to Applications |
+
+            ### What's included
+            - Bundled FFmpeg — no external dependencies
+            - HEIC/HEIF → JPEG batch conversion (q:v 2, yuvj444p)
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/windows/*.exe
+            artifacts/macos/*.dmg
+            artifacts/macos/*.zip
