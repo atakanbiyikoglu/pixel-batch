@@ -1,45 +1,68 @@
 ===================================
-PIXELBATCH - HEIC'den JPEG'e
+🎉 PIXELBATCH - HEIC→JPEG
 ===================================
 
-BAŞLATMA:
----------
-Windows: PixelBatch.bat çift tıkla
-macOS:   PixelBatch.command çift tıkla
+Professional masaüstü uygulaması
+Windows & macOS için
 
-Hepsi otomatik olur:
-✓ Sunucu başlar (localhost:3000)
-✓ Tarayıcı otomatik açılır
-✓ Dosya dönüştürmeye başlayabilirsin
+GERİ GEREK KALINDI:
+✗ Terminal/CMD
+✗ Node.js kurulumu
+✗ FFmpeg kurulumu
+✗ PowerShell/Batch bilgisi
 
-ÖNEMLİ UYARI:
--------------
-Siyah cmd/Terminal penceresini KAPATMA!
-Kapatırsan sunucu durur ve dönüştürme yapılamaz.
+SADECE BİR TANE:
+✓ PixelBatch.exe (Windows)
+✓ PixelBatch.dmg (macOS)
 
-EĞER TARAYICI AÇILMAZSA:
-------------------------
-1. Cmd penceresinde şu satırı kopyala:
-   http://localhost:3000
+---
 
-2. Tarayıcıda yeni sekme aç
+INSTALLATION:
+==============
 
-3. Adresi yapıştır (Ctrl+V)
+Windows:
+1. PixelBatch-Setup.exe indir
+2. Çift tıkla
+3. Başka hiçbir şey yapma
 
-4. Enter bas
+macOS:
+1. PixelBatch.dmg indir
+2. İçinden PixelBatch'ı Applications'a sürükle
+3. Applications'dan çalıştır
 
-DOSYA DÖNÜŞTÜRME:
-------------------
-1. PixelBatch'ı çift tıkla
-2. Tarayıcı açılır → http://localhost:3000
-3. HEIC dosyalarını sürükle-bırak
-4. ZIP'i indir
+---
 
-MASAÜSTÜ KIŞAYOLU:
--------------------
-İlk çalıştırmada otomatik oluşturulur.
-Sonradan masaüstü kısayolundan da açabilirsin.
+KULLANIM:
+=========
 
-SORUNUNUZ?
------------
-Cmd/Terminal penceresini açık tutun!
+1. PixelBatch'ı çalıştır (exe/dmg)
+2. Drop zone'a HEIC dosyalarını sürükle
+3. "Dönüştür" tıkla
+4. Hepsi ZIP olarak indir
+5. Bitti!
+
+---
+
+ÖZELLIKLER:
+===========
+
+✓ HEIC → JPEG (Yüksek kalite: q:v 2)
+✓ Çözünürlük korunur
+✓ Toplu dönüşüm (100+ dosya)
+✓ ZIP indirme
+✓ Hata haberi (dosya bozuksa)
+✓ Progress gösterimi
+✓ No terminal needed
+
+---
+
+TEKNIK:
+=======
+
+✓ Electron (masaüstü app)
+✓ FFmpeg-static (bundled)
+✓ Node.js kütüphaneleri (archiver)
+✓ IPC (main←→renderer)
+✓ Cross-platform UI
+
+Installer: electron-builder
