@@ -1,117 +1,134 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelBatch - HEIC to JPEG Converter</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelBatch</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="header-content">
-        <h1>📸 PixelBatch</h1>
-        <p>Professional HEIC to JPEG Converter</p>
-      </div>
-    </header>
 
-    <main class="main-content">
-      <!-- Step 1: Select Files -->
-      <section class="step" id="step-select">
-        <div class="step-header">
-          <h2>Adım 1: Dosyaları Seç</h2>
+    <div class="app">
+
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#0071e3" />
+                    <path d="M8 20l4-8 4 5 4-3 4 6" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <circle cx="21" cy="12" r="2.5" fill="#fff" />
+                </svg>
+            </div>
+            <h1>PixelBatch</h1>
+            <p class="subtitle">HEIC &#8594; JPEG Toplu D&#246;n&#252;&#351;t&#252;r&#252;c&#252;</p>
+        </header>
+
+        <div class="card">
+
+            <!-- Ad&#305;m 1: Dosya Se&#231; -->
+            <section class="step active" id="step-select">
+                <h2 class="section-label">Dosya Se&#231;</h2>
+
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect x="6" y="10" width="36" height="28" rx="4" stroke="#86868b" stroke-width="2" />
+                            <path d="M6 30l10-8 6 4 8-6 12 10" stroke="#86868b" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <circle cx="16" cy="20" r="3" stroke="#86868b" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <p class="drop-zone-text">HEIC dosyalar&#305;n&#305; buraya s&#252;r&#252;kleyin</p>
+                    <p class="drop-zone-hint">veya a&#351;a&#287;&#305;daki butona t&#305;klay&#305;n</p>
+                </div>
+
+                <div class="select-btn-wrapper">
+                    <button class="btn btn-primary" id="selectBtn">Dosya Se&#231;</button>
+                </div>
+
+                <div class="files-panel" id="filesPanel">
+                    <div class="files-panel-header">
+                        <h3><span id="fileCount">0</span> dosya se&#231;ildi</h3>
+                        <button class="btn-link" id="clearBtn">Temizle</button>
+                    </div>
+                    <div class="files-container" id="filesContainer"></div>
+                    <div class="files-actions">
+                        <button class="btn btn-primary" id="convertBtn">D&#246;n&#252;&#351;t&#252;r</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ad&#305;m 2: D&#246;n&#252;&#351;t&#252;r&#252;l&#252;yor -->
+            <section class="step" id="step-converting">
+                <h2 class="section-label">D&#246;n&#252;&#351;t&#252;r&#252;l&#252;yor&#8230;</h2>
+
+                <div class="progress-section">
+                    <div class="progress-track">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progressText">0 / 0</span>
+                        <span id="progressPercent">%0</span>
+                    </div>
+                </div>
+
+                <div class="current-file-box">
+                    <div class="current-file-name" id="currentFileName">Bekleniyor&#8230;</div>
+                    <div class="current-file-status" id="statusText">Haz&#305;rlan&#305;yor&#8230;</div>
+                </div>
+
+                <div class="log-box" id="logBox"></div>
+            </section>
+
+            <!-- Ad&#305;m 3: Tamamland&#305; -->
+            <section class="step" id="step-complete">
+                <h2 class="section-label">Tamamland&#305;</h2>
+
+                <div class="results">
+                    <div class="result-card">
+                        <div class="result-value green" id="successCount">0</div>
+                        <div class="result-label">Ba&#351;ar&#305;l&#305;</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value red" id="failCount">0</div>
+                        <div class="result-label">Ba&#351;ar&#305;s&#305;z</div>
+                    </div>
+                </div>
+
+                <div class="complete-actions">
+                    <button class="btn btn-primary" id="downloadBtn">ZIP &#304;ndir</button>
+                    <button class="btn btn-secondary" id="restartBtn">Tekrar Ba&#351;la</button>
+                </div>
+
+                <div class="failed-box" id="failedBox">
+                    <h4>Ba&#351;ar&#305;s&#305;z Dosyalar</h4>
+                    <div id="failedList"></div>
+                </div>
+            </section>
+
         </div>
-
-        <div class="drop-zone" id="dropZone">
-          <div class="drop-zone-content">
-            <p class="drop-icon">📁</p>
-            <p class="drop-text">HEIC/HEIF dosyalarını buraya sürükle</p>
-            <p class="drop-or">Veya</p>
-            <button class="btn btn-primary" id="selectBtn">Dosya Seç</button>
-          </div>
-        </div>
-
-        <!-- Selected Files List -->
-        <div id="filesList" class="files-list hidden">
-          <h3>Seçilen Dosyalar (<span id="fileCount">0</span>)</h3>
-          <div id="filesContainer" class="files-container"></div>
-          <div class="files-actions">
-            <button class="btn btn-secondary" id="clearFilesBtn">Temizle</button>
-            <button class="btn btn-primary" id="convertBtn">Dönüştür</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Step 2: Converting -->
-      <section class="step hidden" id="step-converting">
-        <div class="step-header">
-          <h2>Adım 2: Dönüştürülüyor</h2>
-        </div>
-
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <p class="progress-text" id="progressText">0/0</p>
-        </div>
-
-        <!-- Current File -->
-        <div class="current-file">
-          <p id="currentFileName" class="current-filename">Dosya yükleniyor...</p>
-          <p id="statusText" class="status-text">Lütfen bekle...</p>
-        </div>
-
-        <!-- Files Log -->
-        <div class="files-log">
-          <div id="filesLog" class="log-container"></div>
-        </div>
-      </section>
-
-      <!-- Step 3: Complete -->
-      <section class="step hidden" id="step-complete">
-        <div class="step-header">
-          <h2>Adım 3: Tamamlandı</h2>
-        </div>
-
-        <div class="results-box">
-          <div class="result-stat">
-            <span class="stat-icon">✓</span>
-            <span class="stat-label">Başarılı</span>
-            <span class="stat-value" id="successCount">0</span>
-          </div>
-          <div class="result-stat">
-            <span class="stat-icon">✗</span>
-            <span class="stat-label">Başarısız</span>
-            <span class="stat-value" id="failCount">0</span>
-          </div>
-        </div>
-
-        <div class="complete-actions">
-          <button class="btn btn-primary" id="downloadBtn">
-            📥 ZIP İndir
-          </button>
-          <button class="btn btn-secondary" id="startOverBtn">
-            ↻ Tekrar Başla
-          </button>
-        </div>
-
-        <!-- Failed Files -->
-        <div id="failedFilesContainer" class="failed-files hidden">
-          <h3>Başarısız Dosyalar</h3>
-          <div id="failedFilesList"></div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Error Popup -->
-    <div id="errorPopup" class="popup hidden" role="alert">
-      <div class="popup-content">
-        <p id="errorMessage"></p>
-        <button class="btn btn-secondary" onclick="closeError()">Tamam</button>
-      </div>
     </div>
-  </div>
 
-  <script src="renderer.js"></script>
+    <footer class="footer">
+        <a href="https://github.com/atakanbiyikoglu" target="_blank" rel="noopener">
+            Atakan B&#305;y&#305;ko&#287;lu taraf&#305;ndan geli&#351;tirildi
+        </a>
+        <span class="footer-dot">&#183;</span>
+        <a href="https://github.com/atakanbiyikoglu/pixel-batch" target="_blank" rel="noopener">
+            GitHub
+        </a>
+    </footer>
+
+    <div class="popup-overlay" id="errorPopup" role="alert">
+        <div class="popup-box">
+            <p class="popup-message" id="errorMessage"></p>
+            <button class="btn btn-secondary" onclick="closeError()">Tamam</button>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
 </body>
+
 </html>

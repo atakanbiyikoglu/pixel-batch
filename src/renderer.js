@@ -1,302 +1,208 @@
-// State
+/* PixelBatch renderer */
+
 let selectedFiles = [];
 let conversionResults = null;
 let tempDir = null;
 
-// DOM Elements
-const dropZone = document.getElementById('dropZone');
-const selectBtn = document.getElementById('selectBtn');
-const filesList = document.getElementById('filesList');
+// DOM
+const dropZone       = document.getElementById('dropZone');
+const selectBtn      = document.getElementById('selectBtn');
+const filesPanel     = document.getElementById('filesPanel');
 const filesContainer = document.getElementById('filesContainer');
-const fileCount = document.getElementById('fileCount');
-const clearFilesBtn = document.getElementById('clearFilesBtn');
-const convertBtn = document.getElementById('convertBtn');
+const fileCount      = document.getElementById('fileCount');
+const clearBtn       = document.getElementById('clearBtn');
+const convertBtn     = document.getElementById('convertBtn');
 
-const stepSelect = document.getElementById('step-select');
+const stepSelect     = document.getElementById('step-select');
 const stepConverting = document.getElementById('step-converting');
-const stepComplete = document.getElementById('step-complete');
+const stepComplete   = document.getElementById('step-complete');
 
-const progressFill = document.getElementById('progressFill');
-const progressText = document.getElementById('progressText');
+const progressBar     = document.getElementById('progressBar');
+const progressText    = document.getElementById('progressText');
+const progressPercent = document.getElementById('progressPercent');
 const currentFileName = document.getElementById('currentFileName');
-const statusText = document.getElementById('statusText');
-const filesLog = document.getElementById('filesLog');
+const statusText      = document.getElementById('statusText');
+const logBox          = document.getElementById('logBox');
 
 const successCount = document.getElementById('successCount');
-const failCount = document.getElementById('failCount');
-const downloadBtn = document.getElementById('downloadBtn');
-const startOverBtn = document.getElementById('startOverBtn');
-const failedFilesContainer = document.getElementById('failedFilesContainer');
-const failedFilesList = document.getElementById('failedFilesList');
+const failCount    = document.getElementById('failCount');
+const downloadBtn  = document.getElementById('downloadBtn');
+const restartBtn   = document.getElementById('restartBtn');
+const failedBox    = document.getElementById('failedBox');
+const failedList   = document.getElementById('failedList');
 
-const errorPopup = document.getElementById('errorPopup');
+const errorPopup   = document.getElementById('errorPopup');
 const errorMessage = document.getElementById('errorMessage');
 
-// Drag and Drop
-dropZone.addEventListener('dragover', (e) => {
+// Steps
+function showStep(el) {
+  [stepSelect, stepConverting, stepComplete].forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Drag & Drop
+dropZone.addEventListener('dragover', e => {
   e.preventDefault();
   dropZone.classList.add('drag-over');
 });
-
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('drag-over');
-});
-
-dropZone.addEventListener('drop', async (e) => {
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
-
-  const files = Array.from(e.dataTransfer.files);
-  const heicFiles = files.filter(f => 
-    f.name.toLowerCase().endsWith('.heic') || 
-    f.name.toLowerCase().endsWith('.heif')
+  const files = Array.from(e.dataTransfer.files).filter(f =>
+    /\.(heic|heif)$/i.test(f.name)
   );
-
-  if (heicFiles.length > 0) {
-    heicFiles.forEach(f => {
-      if (!selectedFiles.find(sf => sf.path === f.path)) {
-        selectedFiles.push({ name: f.name, path: f.path });
-      }
-    });
-    updateFilesList();
-  } else {
-    showError('Lütfen sadece HEIC/HEIF dosyaları seçin');
-  }
+  if (!files.length) return showError('Yaln\u0131zca HEIC / HEIF dosyalar\u0131 se\u00e7in.');
+  files.forEach(f => {
+    if (!selectedFiles.find(s => s.path === f.path))
+      selectedFiles.push({ name: f.name, path: f.path });
+  });
+  renderFiles();
 });
 
-// Select Button
+// File picker
 selectBtn.addEventListener('click', async () => {
-  const files = await window.electronAPI.selectFiles();
-  
-  files.forEach(filePath => {
-    const name = filePath.split(/[\\/]/).pop();
-    if (!selectedFiles.find(f => f.path === filePath)) {
-      selectedFiles.push({ name, path: filePath });
-    }
+  const paths = await window.electronAPI.selectFiles();
+  paths.forEach(p => {
+    const name = p.split(/[\\/]/).pop();
+    if (!selectedFiles.find(f => f.path === p))
+      selectedFiles.push({ name, path: p });
   });
-
-  updateFilesList();
+  renderFiles();
 });
 
-// Update Files List UI
-function updateFilesList() {
-  if (selectedFiles.length === 0) {
-    filesList.classList.add('hidden');
+// Render file list
+function renderFiles() {
+  if (!selectedFiles.length) {
+    filesPanel.classList.remove('visible');
     return;
   }
-
-  filesList.classList.remove('hidden');
+  filesPanel.classList.add('visible');
   fileCount.textContent = selectedFiles.length;
-
   filesContainer.innerHTML = '';
-  selectedFiles.forEach((file, index) => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `
-      <span class="file-item-name">${file.name}</span>
-      <button class="file-item-remove" onclick="removeFile(${index})">Kaldır</button>
-    `;
-    filesContainer.appendChild(div);
+  selectedFiles.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'file-row';
+    row.innerHTML =
+      '<span class="file-row-name">' + f.name + '</span>' +
+      '<button class="file-row-remove" data-idx="' + i + '">Kald\u0131r</button>';
+    filesContainer.appendChild(row);
   });
 }
 
-// Remove File
-function removeFile(index) {
-  selectedFiles.splice(index, 1);
-  updateFilesList();
-}
-
-// Clear Files
-clearFilesBtn.addEventListener('click', () => {
-  selectedFiles = [];
-  updateFilesList();
+filesContainer.addEventListener('click', e => {
+  if (e.target.classList.contains('file-row-remove')) {
+    selectedFiles.splice(+e.target.dataset.idx, 1);
+    renderFiles();
+  }
 });
 
-// Convert Button
+clearBtn.addEventListener('click', () => { selectedFiles = []; renderFiles(); });
+
+// Convert
 convertBtn.addEventListener('click', async () => {
-  if (selectedFiles.length === 0) {
-    showError('Lütfen en az bir dosya seçin');
-    return;
-  }
-
-  // Hide select step, show converting step
-  stepSelect.classList.add('hidden');
-  stepConverting.classList.remove('hidden');
-  stepComplete.classList.add('hidden');
-
-  // Clear logs
-  filesLog.innerHTML = '';
-
-  // Get file paths
-  const filePaths = selectedFiles.map(f => f.path);
-
+  if (!selectedFiles.length) return showError('L\u00fctfen en az bir dosya se\u00e7in.');
+  showStep(stepConverting);
+  logBox.innerHTML = '';
   try {
-    // Start conversion
-    const results = await window.electronAPI.convertFiles(filePaths);
-    
+    const results = await window.electronAPI.convertFiles(selectedFiles.map(f => f.path));
     conversionResults = results;
     tempDir = results.outputDir;
-
-    // Show completion step
-    showCompletionStep(results);
-
-  } catch (error) {
-    showError(`Dönüştürme hatası: ${error.message}`);
-    stepSelect.classList.remove('hidden');
-    stepConverting.classList.add('hidden');
+    showComplete(results);
+  } catch (err) {
+    showError('D\u00f6n\u00fc\u015ft\u00fcrme hatas\u0131: ' + err.message);
+    showStep(stepSelect);
   }
 });
 
-// Listen to conversion progress
-window.electronAPI.onConversionProgress((data) => {
-  const percentage = (data.current / data.total) * 100;
-  progressFill.style.width = percentage + '%';
-  progressText.textContent = `${data.current}/${data.total}`;
-  currentFileName.textContent = data.fileName;
-  statusText.textContent = data.status;
+// IPC listeners
+window.electronAPI.onConversionProgress(d => {
+  const pct = Math.round((d.current / d.total) * 100);
+  progressBar.style.width = pct + '%';
+  progressText.textContent = d.current + ' / ' + d.total;
+  progressPercent.textContent = '%' + pct;
+  currentFileName.textContent = d.fileName;
+  statusText.textContent = d.status;
 });
 
-// Listen to file conversion status
-window.electronAPI.onFileConverted((data) => {
-  const logItem = document.createElement('div');
-  logItem.className = `log-item ${data.status}`;
-
-  if (data.status === 'success') {
-    logItem.innerHTML = `✓ ${data.fileName}`;
-  } else {
-    logItem.innerHTML = `✗ ${data.fileName} - ${data.error}`;
-  }
-
-  filesLog.appendChild(logItem);
-  filesLog.scrollTop = filesLog.scrollHeight;
+window.electronAPI.onFileConverted(d => {
+  const row = document.createElement('div');
+  row.className = 'log-row ' + d.status;
+  row.textContent = (d.status === 'success' ? '\u2713 ' : '\u2717 ') + d.fileName;
+  logBox.appendChild(row);
+  logBox.scrollTop = logBox.scrollHeight;
 });
 
-// Listen to conversion complete
-window.electronAPI.onConversionComplete((data) => {
-  conversionResults = data;
-  showCompletionStep(data);
-});
+window.electronAPI.onConversionComplete(d => { conversionResults = d; showComplete(d); });
+window.electronAPI.onConversionError(d => showError(d.message));
 
-// Listen to conversion error
-window.electronAPI.onConversionError((data) => {
-  showError(`Hata: ${data.message}`);
-});
+// Complete
+function showComplete(r) {
+  showStep(stepComplete);
+  successCount.textContent = r.successful ?? 0;
+  failCount.textContent    = r.failed ?? 0;
+  downloadBtn.disabled = !(r.successful > 0 && r.zipPath);
 
-// Show Completion Step
-function showCompletionStep(results) {
-  stepConverting.classList.add('hidden');
-  stepComplete.classList.remove('hidden');
-
-  successCount.textContent = results.successful;
-  failCount.textContent = results.failed;
-
-  // Show failed files if any
-  if (results.failed > 0 && conversionResults && conversionResults.failed) {
-    failedFilesContainer.classList.remove('hidden');
-    failedFilesList.innerHTML = '';
-
-    conversionResults.failed.forEach(failedFile => {
-      const div = document.createElement('div');
-      div.className = 'failed-item';
-      div.innerHTML = `
-        <div class="failed-item-name">${failedFile.fileName}</div>
-        <div class="failed-item-error">${failedFile.error}</div>
-      `;
-      failedFilesList.appendChild(div);
+  if (r.failed > 0 && conversionResults && Array.isArray(conversionResults.failed)) {
+    failedBox.classList.add('visible');
+    failedList.innerHTML = '';
+    conversionResults.failed.forEach(f => {
+      const d = document.createElement('div');
+      d.className = 'failed-item';
+      d.innerHTML =
+        '<div class="failed-item-name">' + f.fileName + '</div>' +
+        '<div class="failed-item-error">' + f.error + '</div>';
+      failedList.appendChild(d);
     });
   } else {
-    failedFilesContainer.classList.add('hidden');
-  }
-
-  // Enable/disable download button
-  if (results.successful > 0 && results.zipPath) {
-    downloadBtn.disabled = false;
-  } else {
-    downloadBtn.disabled = true;
+    failedBox.classList.remove('visible');
   }
 }
 
-// Download ZIP
+// Download
 downloadBtn.addEventListener('click', async () => {
-  if (!conversionResults || !conversionResults.zipPath) {
-    showError('ZIP dosyası bulunamadı');
-    return;
-  }
-
+  if (!conversionResults?.zipPath) return showError('ZIP dosyas\u0131 bulunamad\u0131.');
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = '\u0130ndiriliyor\u2026';
   try {
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = '📥 İndirilyor...';
-
-    const savedPath = await window.electronAPI.saveFile(conversionResults.zipPath);
-
-    if (savedPath) {
-      // Success - cleanup temp files
-      await cleanupTempFiles();
-      downloadBtn.textContent = '✓ İndirildi!';
-      
-      setTimeout(() => {
-        startOver();
-      }, 2000);
+    const saved = await window.electronAPI.saveFile(conversionResults.zipPath);
+    if (saved) {
+      if (tempDir) await window.electronAPI.cleanup(tempDir).catch(() => {});
+      downloadBtn.textContent = '\u0130ndirildi!';
+      setTimeout(restart, 1500);
     } else {
       downloadBtn.disabled = false;
-      downloadBtn.textContent = '📥 ZIP İndir';
+      downloadBtn.textContent = 'ZIP \u0130ndir';
     }
-  } catch (error) {
-    showError(`İndirme hatası: ${error.message}`);
+  } catch (err) {
+    showError('\u0130ndirme hatas\u0131: ' + err.message);
     downloadBtn.disabled = false;
-    downloadBtn.textContent = '📥 ZIP İndir';
+    downloadBtn.textContent = 'ZIP \u0130ndir';
   }
 });
 
-// Start Over
-startOverBtn.addEventListener('click', () => {
-  startOver();
-});
-
-function startOver() {
+// Restart
+restartBtn.addEventListener('click', restart);
+function restart() {
   selectedFiles = [];
   conversionResults = null;
   tempDir = null;
-
-  updateFilesList();
-  stepSelect.classList.remove('hidden');
-  stepConverting.classList.add('hidden');
-  stepComplete.classList.add('hidden');
-
+  renderFiles();
   downloadBtn.disabled = false;
-  downloadBtn.textContent = '📥 ZIP İndir';
+  downloadBtn.textContent = 'ZIP \u0130ndir';
+  showStep(stepSelect);
 }
 
-// Cleanup Temp Files
-async function cleanupTempFiles() {
-  if (tempDir) {
-    try {
-      await window.electronAPI.cleanup(tempDir);
-    } catch (error) {
-      console.error('Cleanup error:', error);
-    }
-  }
+// Error popup
+function showError(msg) {
+  errorMessage.textContent = msg;
+  errorPopup.classList.add('visible');
 }
 
-// Show Error
-function showError(message) {
-  errorMessage.textContent = message;
-  errorPopup.classList.remove('hidden');
-}
+window.closeError = () => errorPopup.classList.remove('visible');
+errorPopup.addEventListener('click', e => { if (e.target === errorPopup) window.closeError(); });
 
-// Close Error
-function closeError() {
-  errorPopup.classList.add('hidden');
-}
-
-// Close error on outside click
-errorPopup.addEventListener('click', (e) => {
-  if (e.target === errorPopup) {
-    closeError();
-  }
-});
-
-// Cleanup on window close
+// Cleanup
 window.addEventListener('beforeunload', async () => {
-  await cleanupTempFiles();
+  if (tempDir) await window.electronAPI.cleanup(tempDir).catch(() => {});
 });

@@ -23,7 +23,7 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true
     },
-    icon: path.join(__dirname, 'assets', 'icon.png')
+    icon: path.join(__dirname, 'src', 'icon.png')
   });
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
