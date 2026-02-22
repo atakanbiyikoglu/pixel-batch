@@ -1,7 +1,61 @@
+# Dependencies
 node_modules/
-.DS_Store
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+dist-electron/
+out/
+release/
+*.exe
+*.dmg
+*.msi
+*.zip
+*.AppImage
+*.deb
+
+# Electron
+main-process-creation-request.*
+
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Logs
+npm-debug.log
+yarn-error.log
 *.log
-dist/
-build/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temp files
+temp/
+uploads/
+converts/
+*.tmp
+*.bak
+
+# Image files (for dev/cleanup)
+*.heic
+*.heif
+*.jpg
+
+# Old Express server (migrated to Electron)
+server.js
+public/
+package-old.json
+PixelBatch.bat
+PixelBatch.command

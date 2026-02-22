@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelBatch - HEIC to JPEG Converter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <h1>📸 PixelBatch</h1>
+        <p>Professional HEIC to JPEG Converter</p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Step 1: Select Files -->
+      <section class="step" id="step-select">
+        <div class="step-header">
+          <h2>Adım 1: Dosyaları Seç</h2>
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-zone-content">
+            <p class="drop-icon">📁</p>
+            <p class="drop-text">HEIC/HEIF dosyalarını buraya sürükle</p>
+            <p class="drop-or">Veya</p>
+            <button class="btn btn-primary" id="selectBtn">Dosya Seç</button>
+          </div>
+        </div>
+
+        <!-- Selected Files List -->
+        <div id="filesList" class="files-list hidden">
+          <h3>Seçilen Dosyalar (<span id="fileCount">0</span>)</h3>
+          <div id="filesContainer" class="files-container"></div>
+          <div class="files-actions">
+            <button class="btn btn-secondary" id="clearFilesBtn">Temizle</button>
+            <button class="btn btn-primary" id="convertBtn">Dönüştür</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Converting -->
+      <section class="step hidden" id="step-converting">
+        <div class="step-header">
+          <h2>Adım 2: Dönüştürülüyor</h2>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="progress-text" id="progressText">0/0</p>
+        </div>
+
+        <!-- Current File -->
+        <div class="current-file">
+          <p id="currentFileName" class="current-filename">Dosya yükleniyor...</p>
+          <p id="statusText" class="status-text">Lütfen bekle...</p>
+        </div>
+
+        <!-- Files Log -->
+        <div class="files-log">
+          <div id="filesLog" class="log-container"></div>
+        </div>
+      </section>
+
+      <!-- Step 3: Complete -->
+      <section class="step hidden" id="step-complete">
+        <div class="step-header">
+          <h2>Adım 3: Tamamlandı</h2>
+        </div>
+
+        <div class="results-box">
+          <div class="result-stat">
+            <span class="stat-icon">✓</span>
+            <span class="stat-label">Başarılı</span>
+            <span class="stat-value" id="successCount">0</span>
+          </div>
+          <div class="result-stat">
+            <span class="stat-icon">✗</span>
+            <span class="stat-label">Başarısız</span>
+            <span class="stat-value" id="failCount">0</span>
+          </div>
+        </div>
+
+        <div class="complete-actions">
+          <button class="btn btn-primary" id="downloadBtn">
+            📥 ZIP İndir
+          </button>
+          <button class="btn btn-secondary" id="startOverBtn">
+            ↻ Tekrar Başla
+          </button>
+        </div>
+
+        <!-- Failed Files -->
+        <div id="failedFilesContainer" class="failed-files hidden">
+          <h3>Başarısız Dosyalar</h3>
+          <div id="failedFilesList"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Error Popup -->
+    <div id="errorPopup" class="popup hidden" role="alert">
+      <div class="popup-content">
+        <p id="errorMessage"></p>
+        <button class="btn btn-secondary" onclick="closeError()">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,21 +1,45 @@
-PIXELBATCH - HEIC'den JPEG'e Dönüştürücü
-==========================================
+===================================
+PIXELBATCH - HEIC'den JPEG'e
+===================================
 
-BU KADAR!
+BAŞLATMA:
+---------
+Windows: PixelBatch.bat çift tıkla
+macOS:   PixelBatch.command çift tıkla
 
-PixelBatch.bat'ı çift tıkla.
+Hepsi otomatik olur:
+✓ Sunucu başlar (localhost:3000)
+✓ Tarayıcı otomatik açılır
+✓ Dosya dönüştürmeye başlayabilirsin
 
-Hepsi kendiliğinden olacak:
-- Node.js kuracak (ilk kez)
-- Bağımlılıkları yükleyecek
-- Tarayıcı açacak
-- Masaüstü kısayolu oluşturacak
+ÖNEMLİ UYARI:
+-------------
+Siyah cmd/Terminal penceresini KAPATMA!
+Kapatırsan sunucu durur ve dönüştürme yapılamaz.
 
-FOTOĞRAF DÖNÜŞTÜRME:
+EĞER TARAYICI AÇILMAZSA:
+------------------------
+1. Cmd penceresinde şu satırı kopyala:
+   http://localhost:3000
 
-1. PixelBatch.bat'ı tıkla
-2. Tarayıcıda http://localhost:3000 açılır
+2. Tarayıcıda yeni sekme aç
+
+3. Adresi yapıştır (Ctrl+V)
+
+4. Enter bas
+
+DOSYA DÖNÜŞTÜRME:
+------------------
+1. PixelBatch'ı çift tıkla
+2. Tarayıcı açılır → http://localhost:3000
 3. HEIC dosyalarını sürükle-bırak
-4. ZIP indir
+4. ZIP'i indir
 
-BITTI! 📸→🖼️
+MASAÜSTÜ KIŞAYOLU:
+-------------------
+İlk çalıştırmada otomatik oluşturulur.
+Sonradan masaüstü kısayolundan da açabilirsin.
+
+SORUNUNUZ?
+-----------
+Cmd/Terminal penceresini açık tutun!
