@@ -1,35 +1,36 @@
 # PixelBatch
 
-HEIC/HEIF dosyalarını yüksek kaliteli JPEG'e toplu dönüştüren masaüstü uygulaması.
+Batch HEIC/HEIF to JPEG converter. A lightweight Electron desktop app with FFmpeg bundled — no installation of Node.js, FFmpeg, or any other dependency required.
 
-**Kurulum gerektirmez.** Node.js, FFmpeg veya herhangi bir bağımlılık yüklemenize gerek yok — çift tıklayın, kullanın.
+## Features
 
----
+- Batch convert multiple HEIC/HEIF files to high-quality JPEG
+- Drag & drop or file picker
+- Converted files packaged as a single ZIP download
+- Bundled FFmpeg — zero external dependencies
+- Windows (.exe) and macOS (.dmg) support
+- Clean, minimal interface
 
-## Özellikler
+## Download
 
-- Toplu dönüştürme — birden fazla HEIC/HEIF dosyasını aynı anda işler
-- Yüksek kalite — FFmpeg `q:v 2`, `yuvj444p` renk alanı
-- Sürükle & bırak veya dosya seçici ile kolay kullanım
-- Dönüştürülen dosyalar tek ZIP olarak indirilir
-- FFmpeg gömülü — harici kurulum gerekmez
-- Windows (.exe) ve macOS (.dmg) desteği
-- Temiz, minimal arayüz
+| Platform | File | Description |
+| -------- | ---- | ----------- |
+| Windows  | `PixelBatch Setup.exe` | Installer with desktop shortcut |
+| Windows  | `PixelBatch.exe` | Portable — no installation needed |
+| macOS    | `PixelBatch.dmg` | Drag to Applications |
 
----
+Pre-built binaries are available in the project root directory and under `dist/`.
 
-## Kullanım
+> macOS builds require building on a Mac. Run `npm run build:mac` on macOS.
 
-1. Uygulamayı açın
-2. HEIC/HEIF dosyalarını sürükleyip bırakın veya **Dosya Seç** butonuna tıklayın
-3. **Dönüştür** butonuna tıklayın
-4. Dönüştürme tamamlandığında **ZIP İndir** ile kaydedin
+## Usage
 
----
+1. Open the app
+2. Drag & drop HEIC/HEIF files or click **Select Files**
+3. Click **Convert**
+4. Download the ZIP when complete
 
-## Geliştirici Kurulumu
-
-Projeyi yerel ortamda çalıştırmak için:
+## Development
 
 ```bash
 git clone https://github.com/atakanbiyikoglu/pixel-batch.git
@@ -41,59 +42,47 @@ npm start
 ### Build
 
 ```bash
-# Windows
-npm run build:win
-
-# macOS
-npm run build:mac
+npm run build:win   # Windows — NSIS installer + portable
+npm run build:mac   # macOS — DMG + ZIP
 ```
 
-Çıktılar `dist/` klasörüne oluşturulur.
+Output goes to `dist/`.
 
----
+## Technical Details
 
-## Teknik Detaylar
+| Parameter    | Value |
+| ------------ | ----- |
+| Input        | HEIC, HEIF |
+| Output       | JPEG (.jpg) |
+| Quality      | q:v 2 (highest) |
+| Pixel Format | yuvj444p (4:4:4 chroma subsampling) |
+| Command      | `ffmpeg -i input -q:v 2 -pix_fmt yuvj444p -y output.jpg` |
 
 ### Architecture
 
-## Teknik Detaylar
+- **Electron** — main process handles file conversion and IPC
+- **ffmpeg-static** — bundled FFmpeg binary, no external install
+- **archiver** — packages converted files into ZIP
+- **contextIsolation + sandbox** — secure renderer process
 
-| Parametre     | Değer                              |
-| ------------- | ---------------------------------- |
-| Girdi         | HEIC, HEIF                         |
-| Çıktı         | JPEG (.jpg)                        |
-| Kalite         | q:v 2 (en yüksek)                 |
-| Piksel Format  | yuvj444p (4:4:4 chroma)           |
-| FFmpeg Komutu  | `ffmpeg -i input -q:v 2 -pix_fmt yuvj444p -y output.jpg` |
-
-### Mimari
-
-- **Electron** — Ana süreç dosya dönüştürme ve IPC yönetimi
-- **ffmpeg-static** — Gömülü FFmpeg binary, harici kurulum gerektirmez
-- **archiver** — Dönüştürülen dosyaları ZIP olarak paketler
-- **contextIsolation + sandbox** — Güvenli renderer süreci
-
-### Proje Yapısı
+### Project Structure
 
 ```
 pixel-batch/
-├── main.js          # Electron ana süreç
+├── main.js          # Electron main process
 ├── preload.js       # contextBridge API
 ├── package.json
 ├── src/
-│   ├── index.html   # Arayüz
-│   ├── styles.css   # Apple-inspired tasarım
-│   └── renderer.js  # Arayüz mantığı
-└── dist/            # Build çıktıları
+│   ├── index.html   # UI markup
+│   ├── styles.css   # Apple-inspired design
+│   └── renderer.js  # UI logic
+└── dist/            # Build output
 ```
 
----
-
-## Lisans
+## License
 
 MIT
 
-## Geliştirici
+## Author
 
-**Atakan Bıyıkoğlu**
-[github.com/atakanbiyikoglu](https://github.com/atakanbiyikoglu)
+**Atakan Bıyıkoğlu** — [github.com/atakanbiyikoglu](https://github.com/atakanbiyikoglu)
