@@ -106,8 +106,8 @@
     "ffmpeg-static": "^5.2.0"
   },
   "devDependencies": {
-    "electron": "^latest",
-    "electron-builder": "^latest"
+    "electron": "^30.0.0",
+    "electron-builder": "^25.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
