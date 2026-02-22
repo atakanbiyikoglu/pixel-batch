@@ -1,9 +1,9 @@
-@echo off
-REM PixelBatch - HEIC'den JPEG'e Dönüştürücü
+﻿@echo off
+REM PixelBatch - HEIC'den JPEG'e Dönüştürücü - NO RESTART!
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM Yönetici kontrolü (Node.js kurulumu için gerekli)
+REM Yönetici kontrolü
 net session >nul 2>&1
 if %errorlevel% neq 0 (
     cls
@@ -11,13 +11,9 @@ if %errorlevel% neq 0 (
     echo.
     echo ⚠️  UYARI: Yönetici İzni Gerekli
     echo.
-    echo PixelBatch'i çalıştırmak için yönetici izni gereklidir.
-    echo.
     echo Lütfen bunu yap:
-    echo   1. PixelBatch.bat dosyasına SAĞ TIKLA
+    echo   1. PixelBatch.bat'a SAĞ TIKLA
     echo   2. "Yönetici olarak çalıştır" seçeneğini seç
-    echo.
-    echo Sonrasında otomatik olarak kurulacak ve açılacak.
     echo.
     pause
     exit /b 1
@@ -26,19 +22,16 @@ if %errorlevel% neq 0 (
 REM Node.js kontrol et
 where node >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    color 0C
     cls
+    color 0E
     echo.
     echo ===============================================
-    echo.
-    echo   ⬇️  Node.js İndiriliyor ve Kuruluyor...
-    echo.
+    echo   Node.js İndiriliyor ve Kuruluyor
     echo ===============================================
     echo.
-    echo Lütfen bekle - bu 2-3 dakika sürebilir
+    echo Lütfen bekle - 2-3 dakika...
     echo.
     
-    REM İndirme dizini
     set TEMP_DIR=%USERPROFILE%\AppData\Local\Temp\PixelBatch
     if not exist "%TEMP_DIR%" mkdir "%TEMP_DIR%"
     
@@ -46,129 +39,65 @@ if %ERRORLEVEL% NEQ 0 (
     set NODE_INSTALLER=%TEMP_DIR%\node-setup.msi
     
     echo İndiriliyor...
-    echo.
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('%NODE_URL%', '%NODE_INSTALLER%')" >nul 2>&1
     
-    REM PowerShell ile indir
-    powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('%NODE_URL%', '%NODE_INSTALLER%')} ; if ($?) { echo 'OK' } else { echo 'HATA'; exit 1 }" >nul 2>&1
-    
-    if %ERRORLEVEL% NEQ 0 (
-        echo.
-        echo ✗ HATA: Node.js indirilenemedi!
-        echo.
-        echo Çözüm:
-        echo   - İnternet bağlantısını kontrol et
-        echo   - Firewall/Antivirus engeli olmadığını kontrol et
-        echo   - Tekrar dene
-        echo.
+    if not exist "%NODE_INSTALLER%" (
+        echo ✗ HATA: İndirilemedi. İnternet kontrol et.
         pause
         exit /b 1
     )
     
-    echo ✓ İndirme tamam!
-    echo.
-    echo Kuruluyor...
-    echo.
-    
-    REM Node.js'i sessizce kur
+    echo ✓ İndirme tamam. Kuruluyor...
     msiexec /i "%NODE_INSTALLER%" /quiet /norestart >nul 2>&1
-    
-    echo ✓ Node.js kuruldu!
-    echo.
-    
-    REM Geçici dosyaları sil
     del "%NODE_INSTALLER%" /Q >nul 2>&1
     
-    REM Cache yenile
-    timeout /t 2 /nobreak >nul 2>&1
+    echo ✓ Node.js kuruldu!
+    timeout /t 2 >nul
     
-    REM Node.js PATH'te mi kontrol et
-    where node >nul 2>nul
-    if %ERRORLEVEL% NEQ 0 (
-        color 0E
-        cls
-        echo.
-        echo ===============================================
-        echo.
-        echo   ⚠️  BİLGİSAYAR YENİDEN BAŞLATILACAK
-        echo.
-        echo ===============================================
-        echo.
-        echo Node.js PATH'e eklenmesi için bilgisayarın
-        echo yeniden başlatılması gerekiyor.
-        echo.
-        echo Lütfen tüm çalışmalarını KAY­DET!
-        echo.
-        echo Yeniden başlatma: 10 saniye sonra
-        echo Durdurmak için: Ctrl+C tuşlarına bas
-        echo.
-        
-        timeout /t 10 /nobreak
-        shutdown /r /t 30 /c "PixelBatch Node.js Kurulumu - Yeniden Başlatıyor" >nul 2>&1
-        
-        echo.
-        echo Bilgisayar yeniden başlatılıyor...
-        echo Başladıktan sonra PixelBatch.bat'ı tekrar açabilirsin.
-        echo.
-        pause
-        exit /b 0
-    )
+    echo.
+    echo Şimdi PixelBatch açılıyor...
+    echo.
+    timeout /t 1 >nul
+    
+    REM Freshly spawn PowerShell (PATH güncellenir)
+    powershell -NoProfile -Command "Start-Process cmd.exe -ArgumentList '/k cd /d \"%~dp0\" ^& node server.js' -NoNewWindow" >nul 2>&1
+    exit /b 0
 )
 
+REM Node.js var - normal başla
 color 0A
 cls
-
 echo.
 echo ===============================================
-echo.
 echo   🎉 PixelBatch Hazır!
-echo.
 echo ===============================================
 echo.
 
-REM Node.js ve npm versiyonlarını göster
-for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
-for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
-
-echo ✓ Node.js: %NODE_VERSION%
-echo ✓ npm: %NPM_VERSION%
-echo.
-
-REM node_modules kontrol et
 cd /d "%~dp0"
+
 if not exist node_modules (
     echo Bağımlılıklar yükleniyor...
-    echo (1-2 dakika sürebilir)
-    echo.
     call npm install --production >nul 2>&1
-    
     if %ERRORLEVEL% NEQ 0 (
-        echo.
-        echo ✗ HATA: Bağımlılıklar kurulamadı
-        echo.
-        echo Çözüm:
-        echo   - İnternet bağlantısını kontrol et
-        echo   - PixelBatch.bat'ı yeniden sakla ve aç
-        echo.
+        echo ✗ HATA: npm install başarısız
         pause
         exit /b 1
     )
-    
-    echo ✓ Kurulum tamamlandı!
+    echo ✓ Kurulum tamam!
     echo.
 )
 
 echo Sunucu başlatılıyor...
-echo Tarayıcı otomatik açılacak...
-echo.
-echo Durdur: Ctrl+C tuşlarına bas
+echo Tarayıcı açılacak...
 echo.
 
-REM Server'ı başlat
+REM Server başlat ve tarayıcıyı aç
 start "" node server.js
-
-REM Tarayıcıyı aç (3 saniye sonra)
-timeout /t 3 /nobreak >nul 2>&1
+timeout /t 2 >nul
 powershell -NoProfile -WindowStyle Hidden -Command "Start-Process 'http://localhost:3000'" >nul 2>&1
 
-REM Server'ı ön planda çalış
-waitfor /t 999 serverRunning 2>nul
+echo ✓ Tarayıcı açılıyor: http://localhost:3000
+echo.
+echo Durdur: Ctrl+C
+echo.
+pause
